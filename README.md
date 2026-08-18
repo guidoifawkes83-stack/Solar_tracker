@@ -87,3 +87,4 @@ Two commission modes, chosen per project:
 This is exactly the "haggle" flexibility you asked for: a big client who
 negotiates a special deal just gets their own discount numbers on their
 project — the formula itself never needs to change.
+"# Solar_tracker" 
