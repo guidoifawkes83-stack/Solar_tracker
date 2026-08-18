@@ -84,12 +84,16 @@ create table if not exists milestones (
 );
 
 -- keep updated_at fresh
-create or replace function set_updated_at() returns trigger as $$
+create or replace function set_updated_at() returns trigger
+language plpgsql
+security invoker
+set search_path = public
+as $$
 begin
   new.updated_at = now();
   return new;
 end;
-$$ language plpgsql;
+$$;
 
 drop trigger if exists trg_projects_updated_at on projects;
 create trigger trg_projects_updated_at before update on projects
