@@ -17,26 +17,26 @@ code you own outright.
   spread math), unless you set a specific rate on a project.
 - One-click CSV/JSON export for an offline backup, any time.
 
-## One-time setup (about 10 minutes)
+## One-time setup (about 5 minutes)
 
-### 1. Create a free Supabase project
-1. Go to [supabase.com](https://supabase.com) and sign up / log in.
-2. Click **New Project**. Pick any name and a database password (save it
-   somewhere — you likely won't need it day-to-day, the app doesn't use it).
-3. Once it's ready, go to **SQL Editor → New query**, paste the contents of
-   `supabase/schema.sql`, and run it.
-4. Optional but recommended: also run `supabase/seed.sql` in a second query
-   to pre-load your 4 current jobs (Analyn, Emerald, Alex, Edward) with
-   today's confirmed numbers.
-5. Go to **Project Settings → API**. You'll need two values from here:
-   - **Project URL** → this is `SUPABASE_URL`
-   - **service_role key** (under "Project API keys", NOT the "anon" key)
-     → this is `SUPABASE_SERVICE_ROLE_KEY`
+### 1. Supabase — already done ✅
+Your project **solar-margin-tracker** is live in your "Estoce Solar
+tracker" organization (project ref `wfpizqfdnrsoxqmocxer`, Singapore
+region, free tier — $0/month). The schema is created and your 4 current
+jobs (Analyn, Emerald, Alex, Edward) are seeded with today's confirmed
+numbers, including Analyn's corrected 630,000 quote.
 
-The service_role key is powerful — it bypasses all database restrictions.
-That's intentional here (the app is single-user, gated by its own
-passcode), but never put it in client-side code or share it. It only ever
-lives in server environment variables.
+The one thing left for you to grab yourself — I don't have access to it —
+is the **service_role key**:
+1. Go to [supabase.com/dashboard](https://supabase.com/dashboard) → the
+   **solar-margin-tracker** project → **Project Settings → API**.
+2. Under "Project API keys", copy the **service_role** key (NOT the
+   "anon"/"publishable" one).
+
+That key is powerful — it bypasses all database restrictions. That's
+intentional here (this is a single-user app gated by its own passcode),
+but never put it in client-side code or share it. It only ever lives in
+server environment variables (step 3 below).
 
 ### 2. Push this code to GitHub
 ```bash
@@ -52,9 +52,9 @@ github.com/new, then run the commands above with its URL.)
 1. Go to [vercel.com](https://vercel.com), sign up / log in, **Add New →
    Project**, and import the GitHub repo you just pushed.
 2. Before deploying, add three **Environment Variables**:
-   - `SUPABASE_URL`
-   - `SUPABASE_SERVICE_ROLE_KEY`
-   - `SITE_PASSWORD` — pick your own passcode, this is what protects the site
+   - `SUPABASE_URL` → `https://wfpizqfdnrsoxqmocxer.supabase.co` (already filled in `.env.example`)
+   - `SUPABASE_SERVICE_ROLE_KEY` → the key you copied in step 1
+   - `SITE_PASSWORD` → pick your own passcode, this is what protects the site
 3. Click **Deploy**. In under a minute you'll get a live URL
    (`your-project.vercel.app`) that only opens after entering the passcode.
 
