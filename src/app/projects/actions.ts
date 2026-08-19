@@ -48,33 +48,40 @@ function projectPayload(form: FormData) {
     };
 }
 
+// Find-or-create by name, used for both clients and installers — same
+// lightweight pattern, just a different table. Keeps the form simple (a
+// plain text field, no separate "manage installers" screen needed) while
+// still giving every installer their own row for the contract generator to
+// pull from.
+async function resolveNamedId(
+    supabase: ReturnType<typeof supabaseAdmin>,
+    table: "clients" | "installers",
+    name: string | null
+): Promise<string | null> {
+    if (!name) return null;
+    const { data: existing } = await supabase
+      .from(table)
+      .select("id")
+      .eq("name", name)
+      .maybeSingle();
+    if (existing) return existing.id;
+    const { data: created, error } = await supabase
+      .from(table)
+      .insert({ name })
+      .select("id")
+      .single();
+    if (error) throw error;
+    return created.id;
+}
+
 export async function createProject(form: FormData) {
     const supabase = supabaseAdmin();
-    const clientName = str(form, "client_name");
-
-  let clientId: string | null = null;
-    if (clientName) {
-          const { data: existing } = await supabase
-            .from("clients")
-            .select("id")
-            .eq("name", clientName)
-            .maybeSingle();
-          if (existing) {
-                  clientId = existing.id;
-          } else {
-                  const { data: created, error } = await supabase
-                    .from("clients")
-                    .insert({ name: clientName })
-                    .select("id")
-                    .single();
-                  if (error) throw error;
-                  clientId = created.id;
-          }
-    }
+    const clientId = await resolveNamedId(supabase, "clients", str(form, "client_name"));
+    const installerId = await resolveNamedId(supabase, "installers", str(form, "installer_name"));
 
   const { data, error } = await supabase
       .from("projects")
-      .insert({ ...projectPayload(form), client_id: clientId })
+      .insert({ ...projectPayload(form), client_id: clientId, installer_id: installerId })
       .select("id")
       .single();
     if (error) throw error;
@@ -85,9 +92,12 @@ export async function createProject(form: FormData) {
 
 export async function updateProject(projectId: string, form: FormData) {
     const supabase = supabaseAdmin();
-    const { error } = await supabase
+    const clientId = await resolveNamedId(supabase, "clients", str(form, "client_name"));
+    const installerId = await resolveNamedId(supabase, "installers", str(form, "installer_name"));
+
+  const { error } = await supabase
       .from("projects")
-      .update(projectPayload(form))
+      .update({ ...projectPayload(form), client_id: clientId, installer_id: installerId })
       .eq("id", projectId);
     if (error) throw error;
 
