@@ -6,6 +6,11 @@ export interface Client {
     notes: string | null;
 }
 
+export interface Installer {
+    id: string;
+    name: string;
+}
+
 export interface MaterialCost {
     id: string;
     project_id: string;
@@ -67,6 +72,7 @@ export interface Project {
     updated_at: string;
 
   clients?: Client | null;
+    installers?: Installer | null;
     material_costs?: MaterialCost[];
     expenses?: Expense[];
 }
