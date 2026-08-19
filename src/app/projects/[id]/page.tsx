@@ -21,7 +21,7 @@ async function getProject(id: string): Promise<Project | null> {
   const supabase = supabaseAdmin();
   const { data, error } = await supabase
     .from("projects")
-    .select("*, clients(*), material_costs(*), expenses(*)")
+    .select("*, clients(*), installers(*), material_costs(*), expenses(*)")
     .eq("id", id)
     .maybeSingle();
   if (error) throw error;
@@ -66,21 +66,34 @@ export default async function ProjectDetailPage({
                 (PRJ-{project.project_number})
               </span>
             </h1>
+            <p className="text-xs text-neutral-500 mt-1">
+              Installer:{" "}
+              <span className="text-neutral-300">{project.installers?.name ?? "Not set"}</span>
+            </p>
           </div>
-          <form action={boundDelete}>
-            <button
-              type="submit"
-              className="text-xs text-red-400 hover:text-red-300 border border-red-900 rounded-md px-3 py-1.5"
+          <div className="flex items-center gap-2">
+            <a
+              href={`/api/projects/${project.id}/contract`}
+              className="text-xs text-neutral-300 hover:text-white border border-neutral-700 rounded-md px-3 py-1.5"
             >
-              Delete project
-            </button>
-          </form>
+              Generate contract
+            </a>
+            <form action={boundDelete}>
+              <button
+                type="submit"
+                className="text-xs text-red-400 hover:text-red-300 border border-red-900 rounded-md px-3 py-1.5"
+              >
+                Delete project
+              </button>
+            </form>
+          </div>
         </div>
 
         <ProjectForm
           action={boundUpdate}
           project={project}
           clientName={project.clients?.name}
+          installerName={project.installers?.name}
           liveFxRate={fx.rate}
           materialsActual={materialsActual}
           submitLabel="Save changes"
