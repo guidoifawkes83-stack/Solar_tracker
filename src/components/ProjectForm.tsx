@@ -34,6 +34,7 @@ export default function ProjectForm({
     commission_mode: (project?.commission_mode ?? "baked_in_invoice") as CommissionMode,
     material_discount_usd: project?.material_discount_usd ?? 0,
     supplier_discount_usd: project?.supplier_discount_usd ?? 0,
+    tt_fee_php: project?.tt_fee_php ?? 0,
   });
 
   const breakdown = useMemo(
@@ -242,6 +243,20 @@ export default function ProjectForm({
           </Row>
         </Section>
 
+        <Section title="Wire transfer (TT) fee">
+          <Row>
+            <Field label="TT fee (PHP) — wire cost to pay the supplier">
+              <input
+                name="tt_fee_php"
+                type="number"
+                step="0.01"
+                {...field("tt_fee_php")}
+                className={inputCls}
+              />
+            </Field>
+          </Row>
+        </Section>
+
         <Section title="Commission / margin terms — the haggle-friendly part">
           <Row>
             <Field label="Commission mode" span={2}>
@@ -324,6 +339,9 @@ export default function ProjectForm({
           <BreakdownLine label="Install margin" value={formatPHP(breakdown.installMarginPhp)} />
           {breakdown.discountAddBackPhp > 0 && (
             <BreakdownLine label="Discount add-back" value={formatPHP(breakdown.discountAddBackPhp)} />
+          )}
+          {breakdown.ttFeePhp > 0 && (
+            <BreakdownLine label="TT / wire fee" value={formatPHP(breakdown.ttFeePhp)} />
           )}
           <BreakdownLine label="Total cost" value={formatPHP(breakdown.totalCostPhp)} />
           <div className="border-t border-neutral-800 pt-3 mt-3">

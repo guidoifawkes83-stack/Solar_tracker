@@ -61,6 +61,9 @@ export interface Project {
     material_discount_usd: number;
     supplier_discount_usd: number;
 
+  // wire transfer (TT) fee for paying the supplier, flat PHP, entered per project
+  tt_fee_php: number;
+
   // budget for expenses that don't fall under materials / supplier / install
   // (permits, travel, incidentals, etc.) — see src/lib/budget.ts
   misc_budget_php: number;

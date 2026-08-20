@@ -7,8 +7,15 @@
 //              − Install Cost PHP
 //              − (Supplier Invoice USD × FX rate)
 //              − Materials Cost (actual if costed, else the full budget — conservative)
+//              − TT / Wire Transfer Fee PHP
 //              + Material Discount USD × FX rate   (only for discount_based jobs)
 //              + Supplier Discount USD × FX rate    (only for discount_based jobs)
+//
+// TT fee: a flat PHP cost for the wire transfer used to pay the supplier.
+// Added 2026-08-20 for a bulk order — Harold set a single ₱20,000 TT charge
+// for the whole batch and split it evenly across the 4 projects in it
+// (₱5,000 each). It's just its own line item, entered per project like any
+// other cost, so it's simple to change per batch/job going forward.
 //
 // FX rate: uses the project's fx_rate_paid if set, otherwise the live
 // USD→PHP market rate passed in. No separate "FX spread gain" line —
@@ -39,6 +46,7 @@ export interface ProjectFinancials {
   commission_mode: CommissionMode;
   material_discount_usd?: number | null;
   supplier_discount_usd?: number | null;
+  tt_fee_php?: number | null; // wire transfer fee for paying the supplier, flat PHP
 }
 
 export interface MarginBreakdown {
@@ -49,6 +57,7 @@ export interface MarginBreakdown {
   materialsCostSource: "actual" | "budget (conservative — not yet costed)";
   installMarginPhp: number;
   discountAddBackPhp: number;
+  ttFeePhp: number;
   totalCostPhp: number;
   marginPhp: number;
   marginPct: number;
@@ -83,7 +92,10 @@ export function calculateMargin(
         fxRateUsed
       : 0;
 
-  const totalCostPhp = project.install_cost_php + supplierCostPhp + materialsCostPhp;
+  const ttFeePhp = project.tt_fee_php ?? 0;
+
+  const totalCostPhp =
+    project.install_cost_php + supplierCostPhp + materialsCostPhp + ttFeePhp;
 
   const marginPhp = project.amount_quoted_php - totalCostPhp + discountAddBackPhp;
 
@@ -98,6 +110,7 @@ export function calculateMargin(
     materialsCostSource,
     installMarginPhp,
     discountAddBackPhp,
+    ttFeePhp,
     totalCostPhp,
     marginPhp,
     marginPct,

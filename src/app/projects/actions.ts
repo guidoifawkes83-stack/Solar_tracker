@@ -42,6 +42,8 @@ function projectPayload(form: FormData) {
           material_discount_usd: num(form, "material_discount_usd"),
           supplier_discount_usd: num(form, "supplier_discount_usd"),
 
+          tt_fee_php: num(form, "tt_fee_php"),
+
           misc_budget_php: form.get("misc_budget_php") ? num(form, "misc_budget_php") : 0,
 
           notes: str(form, "notes"),

@@ -59,6 +59,9 @@ create table if not exists projects (
   material_discount_usd numeric not null default 0,  -- e.g. Edward's $200 off materials, Alex's $400
   supplier_discount_usd numeric not null default 0,  -- e.g. Alex's extra $200 off supplier
 
+  -- wire transfer (TT) fee for paying the supplier, flat PHP, entered per project
+  tt_fee_php numeric not null default 0,
+
   -- budget for expenses that aren't materials / supplier / install (permits,
   -- travel, incidentals) — compared against `expenses` where category='misc'
   misc_budget_php numeric not null default 0,

@@ -44,6 +44,7 @@ export async function GET(req: NextRequest) {
         commission_mode: p.commission_mode,
         material_discount_usd: Number(p.material_discount_usd),
         supplier_discount_usd: Number(p.supplier_discount_usd),
+        tt_fee_php: Number(p.tt_fee_php),
       },
       fx.rate
     );
@@ -67,6 +68,7 @@ export async function GET(req: NextRequest) {
       materials_cost_php: b.materialsCostPhp,
       install_margin_php: b.installMarginPhp,
       discount_addback_php: Math.round(b.discountAddBackPhp * 100) / 100,
+      tt_fee_php: b.ttFeePhp,
       total_cost_php: Math.round(b.totalCostPhp * 100) / 100,
       margin_php: Math.round(b.marginPhp * 100) / 100,
       margin_pct: Math.round(b.marginPct * 100) / 100,

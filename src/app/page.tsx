@@ -37,6 +37,7 @@ export default async function DashboardPage() {
         commission_mode: p.commission_mode,
         material_discount_usd: Number(p.material_discount_usd),
         supplier_discount_usd: Number(p.supplier_discount_usd),
+        tt_fee_php: Number(p.tt_fee_php),
       },
       fx.rate
     );

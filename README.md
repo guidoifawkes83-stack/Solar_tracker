@@ -76,6 +76,12 @@ touches these numbers. It was built and verified against Analyn's confirmed
 margin (₱61,300, checked to the centavo) before anything else was built on
 top of it. Run `npx tsx src/lib/margin.test.ts` any time to re-verify it.
 
+There's also a **TT / wire fee** field per project — a flat PHP cost for the
+bank transfer used to pay the supplier. It's a straightforward subtraction
+from margin, entered per project (e.g. a bulk order's single wire fee split
+evenly across the jobs in it, as it currently is: ₱20,000 ÷ 4 = ₱5,000 each
+for Analyn, Emerald, Alex, and Edward).
+
 Two commission modes, chosen per project:
 - **Baked into invoice** — the supplier already quietly discounts what you
   pay (e.g. the $800 folded into Analyn/Emerald's pro forma). Nothing extra
@@ -87,4 +93,19 @@ Two commission modes, chosen per project:
 This is exactly the "haggle" flexibility you asked for: a big client who
 negotiates a special deal just gets their own discount numbers on their
 project — the formula itself never needs to change.
-"# Solar_tracker" 
+
+## Also included
+
+- **Installers** — a project can be assigned to an installer (own name field,
+  auto-created the first time you type a new one, same as clients).
+- **Expense ledger & budget bars** — log real supplier/install/misc expenses
+  against a project (`src/lib/budget.ts`) and see at a glance whether each
+  category is on, near, or over budget. Materials still uses the existing
+  material-cost line items as its source of truth — this doesn't duplicate it.
+- **Contract generator** — "Generate contract" on a project page produces a
+  ready-to-sign installation & warranty agreement (.docx) pre-filled with that
+  project's details (`src/lib/contract.ts`).
+
+None of these three affect the margin calculation in `src/lib/margin.ts` —
+they're separate, additive features that read project data but never write
+into the margin formula itself.
