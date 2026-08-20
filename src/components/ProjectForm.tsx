@@ -8,6 +8,7 @@ interface Props {
   action: (formData: FormData) => void;
   project?: Project;
   clientName?: string;
+  installerName?: string;
   liveFxRate: number;
   materialsActual?: number | null;
   submitLabel: string;
@@ -17,6 +18,7 @@ export default function ProjectForm({
   action,
   project,
   clientName,
+  installerName,
   liveFxRate,
   materialsActual,
   submitLabel,
@@ -77,6 +79,16 @@ export default function ProjectForm({
             <Field label="Client name">
               <input name="client_name" defaultValue={clientName} className={inputCls} />
             </Field>
+            <Field label="Installer name">
+              <input
+                name="installer_name"
+                defaultValue={installerName}
+                placeholder="Who's doing the install"
+                className={inputCls}
+              />
+            </Field>
+          </Row>
+          <Row>
             <Field label="System size (kW)">
               <input
                 name="system_size_kw"

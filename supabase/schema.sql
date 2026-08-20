@@ -59,6 +59,10 @@ create table if not exists projects (
   material_discount_usd numeric not null default 0,  -- e.g. Edward's $200 off materials, Alex's $400
   supplier_discount_usd numeric not null default 0,  -- e.g. Alex's extra $200 off supplier
 
+  -- budget for expenses that aren't materials / supplier / install (permits,
+  -- travel, incidentals) — compared against `expenses` where category='misc'
+  misc_budget_php numeric not null default 0,
+
   target_energisation date,
   notes text,
 
@@ -73,6 +77,26 @@ create table if not exists material_costs (
   amount_php numeric not null default 0,
   created_at timestamptz not null default now()
 );
+
+-- General expense ledger for everything that isn't materials (materials
+-- keeps using material_costs above, since margin.ts already treats that as
+-- the source of truth for materials actuals). Each row is one real expense
+-- against a project; src/lib/budget.ts sums these per category and compares
+-- against the matching budget field on `projects` (supplier_invoice_usd,
+-- install_cost_php, misc_budget_php) so overspend shows up immediately.
+create table if not exists expenses (
+  id uuid primary key default gen_random_uuid(),
+  project_id uuid not null references projects(id) on delete cascade,
+  category text not null check (category in ('supplier','install','misc')),
+  description text not null,
+  amount numeric not null default 0,
+  currency text not null default 'PHP' check (currency in ('PHP','USD')),
+  fx_rate numeric,              -- rate used for this expense if currency = 'USD'; null = use the project's fx_rate_paid (or live rate) at display time
+  expense_date date not null default current_date,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists idx_expenses_project on expenses(project_id);
 
 create table if not exists milestones (
   id uuid primary key default gen_random_uuid(),
@@ -107,5 +131,6 @@ alter table clients enable row level security;
 alter table installers enable row level security;
 alter table projects enable row level security;
 alter table material_costs enable row level security;
+alter table expenses enable row level security;
 alter table milestones enable row level security;
 -- (no policies created — service role bypasses RLS automatically; anon key gets nothing)

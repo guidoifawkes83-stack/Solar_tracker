@@ -10,7 +10,7 @@ async function getProjects(): Promise<Project[]> {
   const supabase = supabaseAdmin();
   const { data, error } = await supabase
     .from("projects")
-    .select("*, clients(*), material_costs(*)")
+    .select("*, clients(*), installers(*), material_costs(*)")
     .order("project_number", { ascending: true });
   if (error) throw error;
   return data as unknown as Project[];
@@ -98,6 +98,7 @@ export default async function DashboardPage() {
             <thead className="bg-neutral-900 text-neutral-400 text-left">
               <tr>
                 <th className="px-4 py-3 font-medium">Project</th>
+                <th className="px-4 py-3 font-medium">Installer</th>
                 <th className="px-4 py-3 font-medium">Stage</th>
                 <th className="px-4 py-3 font-medium text-right">Quoted</th>
                 <th className="px-4 py-3 font-medium text-right">Total Cost</th>
@@ -122,6 +123,9 @@ export default async function DashboardPage() {
                       {project.clients?.name ?? "—"}
                     </div>
                   </td>
+                  <td className="px-4 py-3 text-neutral-400">
+                    {project.installers?.name ?? "—"}
+                  </td>
                   <td className="px-4 py-3">
                     <StageBadge stage={project.stage} />
                   </td>
@@ -145,7 +149,7 @@ export default async function DashboardPage() {
               ))}
               {rows.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-neutral-500">
+                  <td colSpan={7} className="px-4 py-8 text-center text-neutral-500">
                     No projects yet. Run <code>supabase/seed.sql</code> or add one.
                   </td>
                 </tr>
