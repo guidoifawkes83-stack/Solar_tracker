@@ -360,6 +360,7 @@ export default function ProjectForm({
             label={`Materials cost (${breakdown.materialsCostSource})`}
             value={formatPHP(breakdown.materialsCostPhp)}
           />
+          <BreakdownLine label="Install cost" value={formatPHP(state.install_cost_php)} />
           <BreakdownLine label="Install margin" value={formatPHP(breakdown.installMarginPhp)} />
           {breakdown.discountAddBackPhp > 0 && (
             <BreakdownLine label="Discount add-back" value={formatPHP(breakdown.discountAddBackPhp)} />
