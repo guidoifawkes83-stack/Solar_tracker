@@ -105,7 +105,18 @@ project — the formula itself never needs to change.
 - **Contract generator** — "Generate contract" on a project page produces a
   ready-to-sign installation & warranty agreement (.docx) pre-filled with that
   project's details (`src/lib/contract.ts`).
+- **Start a new project from a supplier PDF** — on the New Project page,
+  drop the supplier's proforma invoice/quotation and it pre-fills what that
+  PDF actually contains: the supplier total, invoice/model number, client
+  name (if named), and system size (`src/lib/pdf-invoice.ts`). Works across
+  different suppliers' formats (tested against Anhui GP and Sunpal invoices)
+  by pattern-matching common phrasing rather than assuming one fixed layout.
+  It can only ever pre-fill what's actually on a supplier invoice — your
+  quote to the client, labor cost, extras budget, and TT fee are never on
+  that document, so those always still need typing in. A field it can't find
+  with real confidence is left blank, never guessed. Every pre-filled number
+  is still editable, and nothing saves until you submit the form.
 
-None of these three affect the margin calculation in `src/lib/margin.ts` —
+None of these four affect the margin calculation in `src/lib/margin.ts` —
 they're separate, additive features that read project data but never write
 into the margin formula itself.

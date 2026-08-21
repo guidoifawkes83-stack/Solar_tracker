@@ -4,6 +4,18 @@ import { useMemo, useState } from "react";
 import { calculateMargin, formatPHP, type CommissionMode } from "@/lib/margin";
 import type { Project } from "@/lib/types";
 
+// Best-effort fields pulled from an uploaded supplier PDF (see
+// src/lib/pdf-invoice.ts) — only the numbers a supplier invoice can actually
+// contain. Never includes client-facing money (quote, labor, TT, etc.).
+export interface ProjectPrefill {
+  supplier_invoice_no?: string;
+  supplier_invoice_usd?: number;
+  client_name?: string;
+  system_size_kw?: number;
+  commission_mode?: CommissionMode;
+  material_discount_usd?: number;
+}
+
 interface Props {
   action: (formData: FormData) => void;
   project?: Project;
@@ -12,6 +24,7 @@ interface Props {
   liveFxRate: number;
   materialsActual?: number | null;
   submitLabel: string;
+  prefill?: ProjectPrefill;
 }
 
 export default function ProjectForm({
@@ -22,6 +35,7 @@ export default function ProjectForm({
   liveFxRate,
   materialsActual,
   submitLabel,
+  prefill,
 }: Props) {
   const [state, setState] = useState({
     amount_quoted_php: project?.amount_quoted_php ?? 0,
@@ -29,10 +43,13 @@ export default function ProjectForm({
     install_cost_php: project?.install_cost_php ?? 0,
     materials_budget_php: project?.materials_budget_php ?? 0,
     materials_costed: project?.materials_costed ?? false,
-    supplier_invoice_usd: project?.supplier_invoice_usd ?? 0,
+    supplier_invoice_usd: project?.supplier_invoice_usd ?? prefill?.supplier_invoice_usd ?? 0,
     fx_rate_paid: project?.fx_rate_paid ?? null,
-    commission_mode: (project?.commission_mode ?? "baked_in_invoice") as CommissionMode,
-    material_discount_usd: project?.material_discount_usd ?? 0,
+    commission_mode: (project?.commission_mode ??
+      prefill?.commission_mode ??
+      "baked_in_invoice") as CommissionMode,
+    material_discount_usd:
+      project?.material_discount_usd ?? prefill?.material_discount_usd ?? 0,
     supplier_discount_usd: project?.supplier_discount_usd ?? 0,
     tt_fee_php: project?.tt_fee_php ?? 0,
   });
@@ -70,7 +87,14 @@ export default function ProjectForm({
             <Field label="Project name" span={2}>
               <input
                 name="project_name"
-                defaultValue={project?.project_name}
+                defaultValue={
+                  project?.project_name ??
+                  (prefill?.client_name
+                    ? `${prefill.client_name}${
+                        prefill.system_size_kw ? ` — ${prefill.system_size_kw} kW System` : ""
+                      }`
+                    : undefined)
+                }
                 required
                 className={inputCls}
               />
@@ -95,7 +119,7 @@ export default function ProjectForm({
                 name="system_size_kw"
                 type="number"
                 step="0.01"
-                defaultValue={project?.system_size_kw ?? ""}
+                defaultValue={project?.system_size_kw ?? prefill?.system_size_kw ?? ""}
                 className={inputCls}
               />
             </Field>
@@ -210,7 +234,7 @@ export default function ProjectForm({
             <Field label="Supplier invoice no.">
               <input
                 name="supplier_invoice_no"
-                defaultValue={project?.supplier_invoice_no ?? ""}
+                defaultValue={project?.supplier_invoice_no ?? prefill?.supplier_invoice_no ?? ""}
                 className={inputCls}
               />
             </Field>
