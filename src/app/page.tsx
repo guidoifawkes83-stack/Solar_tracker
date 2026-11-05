@@ -2,6 +2,7 @@ import Link from "next/link";
 import { supabaseAdmin } from "@/lib/supabase";
 import { getLiveUsdToPhp } from "@/lib/fx";
 import { calculateMargin, formatPHP } from "@/lib/margin";
+import { totalMaterialsActualPhp } from "@/lib/budget";
 import type { Project } from "@/lib/types";
 
 export const dynamic = "force-dynamic"; // always fresh — this is money data
@@ -10,7 +11,7 @@ async function getProjects(): Promise<Project[]> {
   const supabase = supabaseAdmin();
   const { data, error } = await supabase
     .from("projects")
-    .select("*, clients(*), installers(*), material_costs(*)")
+    .select("*, clients(*), installers(*), material_costs(*), expenses(*)")
     .order("project_number", { ascending: true });
   if (error) throw error;
   return data as unknown as Project[];
@@ -20,9 +21,11 @@ export default async function DashboardPage() {
   const [projects, fx] = await Promise.all([getProjects(), getLiveUsdToPhp()]);
 
   const rows = projects.map((p) => {
-    const materialsActual = p.material_costs?.length
+    const materialsLineItems = p.material_costs?.length
       ? p.material_costs.reduce((sum, m) => sum + Number(m.amount_php), 0)
       : null;
+    const fxForMaterials = p.fx_rate_paid && p.fx_rate_paid > 0 ? p.fx_rate_paid : fx.rate;
+    const materialsActual = totalMaterialsActualPhp(materialsLineItems, p.expenses ?? [], fxForMaterials);
 
     const breakdown = calculateMargin(
       {

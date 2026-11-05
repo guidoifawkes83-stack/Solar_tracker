@@ -90,7 +90,7 @@ create table if not exists material_costs (
 create table if not exists expenses (
   id uuid primary key default gen_random_uuid(),
   project_id uuid not null references projects(id) on delete cascade,
-  category text not null check (category in ('supplier','install','misc')),
+  category text not null check (category in ('supplier','install','misc','materials')),
   description text not null,
   amount numeric not null default 0,
   currency text not null default 'PHP' check (currency in ('PHP','USD')),

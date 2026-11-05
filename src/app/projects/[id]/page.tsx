@@ -13,7 +13,7 @@ import {
 } from "../actions";
 import type { Expense, Project } from "@/lib/types";
 import { formatPHP } from "@/lib/margin";
-import { calculateBudgetStatus, type CategoryBudget } from "@/lib/budget";
+import { calculateBudgetStatus, totalMaterialsActualPhp, type CategoryBudget } from "@/lib/budget";
 
 export const dynamic = "force-dynamic";
 
@@ -37,7 +37,7 @@ export default async function ProjectDetailPage({
   const [project, fx] = await Promise.all([getProject(id), getLiveUsdToPhp()]);
   if (!project) notFound();
 
-  const materialsActual = project.material_costs?.length
+  const materialsLineItems = project.material_costs?.length
     ? project.material_costs.reduce((s, m) => s + Number(m.amount_php), 0)
     : null;
 
@@ -45,6 +45,8 @@ export default async function ProjectDetailPage({
     project.fx_rate_paid && project.fx_rate_paid > 0 ? project.fx_rate_paid : fx.rate;
 
   const expenses = project.expenses ?? [];
+  // Materials = line items + any expenses logged under the Materials category.
+  const materialsActual = totalMaterialsActualPhp(materialsLineItems, expenses, fxRateUsed);
   const budgetStatus = calculateBudgetStatus(project, expenses, materialsActual, fxRateUsed);
 
   const boundUpdate = updateProject.bind(null, project.id);
@@ -164,7 +166,7 @@ export default async function ProjectDetailPage({
           </div>
 
           <h3 className="text-xs font-semibold text-neutral-400 mb-2">
-            Add a supplier / install / misc expense
+            Add a materials / supplier / install / misc expense
           </h3>
           <form
             action={boundAddExpense}
@@ -177,6 +179,7 @@ export default async function ProjectDetailPage({
                 required
                 className="w-full rounded-md bg-neutral-800 border border-neutral-700 px-2 py-2 text-sm"
               >
+                <option value="materials">Materials</option>
                 <option value="supplier">Supplier</option>
                 <option value="install">Install</option>
                 <option value="misc">Misc</option>
@@ -270,7 +273,7 @@ export default async function ProjectDetailPage({
             </ul>
           ) : (
             <p className="text-xs text-neutral-500">
-              No supplier / install / misc expenses logged yet.
+              No expenses logged yet.
             </p>
           )}
         </div>
@@ -324,6 +327,7 @@ function BudgetBar({ budget }: { budget: CategoryBudget }) {
 
 function CategoryTag({ category }: { category: Expense["category"] }) {
   const styles: Record<Expense["category"], string> = {
+    materials: "bg-amber-950 text-amber-400",
     supplier: "bg-blue-950 text-blue-400",
     install: "bg-purple-950 text-purple-400",
     misc: "bg-neutral-800 text-neutral-400",

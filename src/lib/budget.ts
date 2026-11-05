@@ -48,6 +48,21 @@ function sumCategory(expenses: Expense[], category: Expense["category"], fxRateU
       .reduce((sum, e) => sum + expenseAmountPhp(e, fxRateUsed), 0);
 }
 
+/**
+ * Materials actuals = "Materials costed" line items + any expenses logged
+ * with the Materials category. Returns null when there are neither, so
+ * callers keep their "not costed yet" behaviour.
+ */
+export function totalMaterialsActualPhp(
+    lineItemsPhp: number | null,
+    expenses: Expense[],
+    fxRateUsed: number
+  ): number | null {
+    const hasExpenses = expenses.some((e) => e.category === "materials");
+    if (lineItemsPhp == null && !hasExpenses) return null;
+    return (lineItemsPhp ?? 0) + sumCategory(expenses, "materials", fxRateUsed);
+}
+
 export function calculateBudgetStatus(
     project: Project,
     expenses: Expense[],

@@ -18,7 +18,7 @@ export interface MaterialCost {
     amount_php: number;
 }
 
-export type ExpenseCategory = "supplier" | "install" | "misc";
+export type ExpenseCategory = "supplier" | "install" | "misc" | "materials";
 
 export interface Expense {
     id: string;
